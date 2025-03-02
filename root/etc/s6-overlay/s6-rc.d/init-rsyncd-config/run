@@ -1,13 +1,18 @@
 #!/usr/bin/with-contenv bash
 # shellcheck shell=bash
 
+# Create log directory
+if [[ ! -d /config/logs/rsync ]]; then
+  mkdir -p /config/logs/rsync
+fi
+
 # Create default rsync config file
 if [[ ! -f /config/rsyncd.conf ]]; then
   cat <<EOF > /config/rsyncd.conf
 uid = ${USER_NAME}
 gid = ${USER_NAME}
 use chroot = yes
-log file = /dev/stdout
+log file = /config/rsync/rsync.log
 reverse lookup = no
 [${RSYNC_MODULE:-volume}]
     read only = false
