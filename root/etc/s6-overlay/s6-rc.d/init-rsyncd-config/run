@@ -1,0 +1,28 @@
+#!/usr/bin/with-contenv bash
+# shellcheck shell=bash
+
+# create folders
+mkdir -p \
+    /config/rsync
+
+# Update /etc/rsyncd.conf to always point to our config files
+cat << EOF > /etc/rsyncd.conf
+# This file only points to /config/rsync so it can load all .config and .inc files from there
+&merge /config/rsync
+&include /config/rsync
+EOF
+
+# Create default rsync config file
+if [[ ! -f /config/rsync/default.conf ]]; then
+  cat <<EOF > /config/rsync/default.conf
+uid = ${USER_NAME}
+gid = ${USER_NAME}
+use chroot = yes
+log file = /dev/stdout
+reverse lookup = no
+[${RSYNC_MODULE:-volume}]
+    read only = false
+    path = ${RSYNC_PATH:-/data}
+    comment = default rsync volume
+EOF
+fi
